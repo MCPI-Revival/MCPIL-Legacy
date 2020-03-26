@@ -6,7 +6,7 @@ import subprocess
 import atexit
 import signal
 import webbrowser
-from os import walk, remove, path, chdir, kill
+from os import walk, remove, path, chdir, kill, rename
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -100,6 +100,24 @@ def web_open(event):
 	webbrowser.open(event.widget.cget("text"));
 	return 0;
 
+def save_world():
+	old_worldname = old_worldname_entry.get();
+	new_worldname = new_worldname_entry.get();
+	world_file = open("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_worldname + "/level.dat", "rb+");
+	new_world = world_file.read().replace(bytes([len(old_worldname)]) + bytes([0]) + bytes(old_worldname.encode()), bytes([len(new_worldname)]) + bytes([0]) + bytes(new_worldname.encode()));
+	world_file.seek(0);
+	world_file.write(new_world);
+	world_file.seek(0x16);
+	world_file.write(bytes([game_mode.get()]));
+	world_file.close();
+	rename("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_worldname, "/root/.minecraft/games/com.mojang/minecraftWorlds/" + new_worldname);
+	return 0;
+
+def set_default_worldname(event):
+	new_worldname_entry.delete(0, END);
+	new_worldname_entry.insert(0, old_worldname_entry.get());
+	return True;
+
 def play_tab(parent):
 	global description_text;
 
@@ -140,11 +158,11 @@ def settings_tab(parent):
 
 	form_frame = Frame(tab);
 	username_text = Label(form_frame, text="Username (7 characters max):");
-	username_text.pack(side=LEFT, anchor=N, pady=16);
+	username_text.pack(side=LEFT, anchor=N, pady=16, padx=8);
 
 	username_entry = Entry(form_frame, width=32);
-	username_entry.pack(side=RIGHT, anchor=N, pady=16);
-	form_frame.pack();
+	username_entry.pack(side=RIGHT, anchor=N, pady=16, padx=8);
+	form_frame.pack(fill=X);
 
 	buttons_frame = Frame(tab);
 	skin_button = Button(buttons_frame, text="Change skin", command=change_skin);
@@ -180,6 +198,49 @@ def mods_tab(parent):
 	buttons_frame.pack(fill=BOTH, expand=True);
 	return tab;
 
+def worlds_tab(parent):
+	global old_worldname_entry;
+	global new_worldname_entry;
+	global game_mode;
+	tab = Frame(parent);
+
+	title = Label(tab, text="Worlds");
+	title.config(font=("", 24));
+	title.pack();
+
+	old_worldname_frame = Frame(tab);
+	old_worldname_text = Label(old_worldname_frame, text="World Name:");
+	old_worldname_text.pack(side=LEFT, anchor=N, pady=16, padx=8);
+
+	old_worldname_entry = Entry(old_worldname_frame, width=32, validate="focus", validatecommand=(tab.register(set_default_worldname), "%P"));
+	old_worldname_entry.pack(side=RIGHT, anchor=N, pady=16, padx=8);
+	old_worldname_frame.pack(fill=X);
+
+	new_worldname_frame = Frame(tab);
+	new_worldname_text = Label(new_worldname_frame, text="New World Name:");
+	new_worldname_text.pack(side=LEFT, anchor=N, padx=8);
+
+	new_worldname_entry = Entry(new_worldname_frame, width=32);
+	new_worldname_entry.pack(side=RIGHT, anchor=N, padx=8);
+	new_worldname_frame.pack(fill=X);
+
+	game_mode_frame = Frame(tab);
+	game_mode_text = Label(game_mode_frame, text="Game mode:");
+	game_mode_text.pack(side=LEFT, anchor=N, pady=16, padx=8);
+	game_mode = IntVar();
+	game_mode.set(1);
+	survival_mode_button = Radiobutton(game_mode_frame, text="Survival", variable=game_mode, value=0, indicatoron=False, width=12);
+	creative_mode_button = Radiobutton(game_mode_frame, text="Creative", variable=game_mode, value=1, indicatoron=False, width=12);
+	creative_mode_button.pack(side=RIGHT, pady=16, padx=8);
+	survival_mode_button.pack(side=RIGHT, pady=16, padx=8);
+	game_mode_frame.pack(fill=X);
+
+	buttons_frame = Frame(tab);
+	start_button = Button(buttons_frame, text="Save", command=save_world);
+	start_button.pack(side=RIGHT, anchor=S);
+	buttons_frame.pack(fill=BOTH, expand=True);
+	return tab;
+
 def about_tab(parent):
 	tab = Frame(parent);
 
@@ -187,7 +248,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.1.0");
+	version = Label(tab, text="v0.1.1");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -215,6 +276,7 @@ def main(args):
 	tabs.add(play_tab(tabs), text="Play");
 	tabs.add(settings_tab(tabs), text="Settings");
 	tabs.add(mods_tab(tabs), text="Mods");
+	tabs.add(worlds_tab(tabs), text="Worlds");
 	tabs.add(about_tab(tabs), text="About");
 	tabs.pack(fill=BOTH, expand=True);
 

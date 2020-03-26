@@ -1,6 +1,8 @@
 # MCPIL
 Minecraft Pi Launcher
 
+![screenshot](https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png)
+
 A simple launcher for Minecraft: Pi Edition.
 
 ## Getting started
@@ -19,7 +21,14 @@ and then run the file ``install.py``. It will create a desktop file that you can
 + Username change
 + Skin change
 + Mod load
++ World game mode and name change
 + Coming soon: join non-local server
+
+## Usage
+Launch the MCPIL desktop file or run the ``mcpil.py`` file to see the magick! :wink:
+
+## Thanks
+To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch.
 
 ## Licensing
 All the code of this project is licensed under the [GNU General Public License version 2.0](https://github.com/Alvarito050506/MCPIL/blob/master/LICENSE) (GPL-2.0).
