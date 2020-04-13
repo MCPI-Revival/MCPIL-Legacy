@@ -1,12 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+#  mcpil.py
+#  
+#  Copyright 2020 Alvarito050506 <donfrutosgomez@gmail.com>
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 2 of the License.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+#  
 
 import sys
 import subprocess
 import atexit
 import signal
 import webbrowser
-from os import walk, remove, path, chdir, kill, rename
+import psutil
+import time
+from os import walk, remove, path, chdir, kill, rename, environ, uname, geteuid
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -22,7 +44,11 @@ def on_select_versions(event):
 	return 0;
 
 def launch():
-	subprocess.Popen([binaries[current_selection]]);
+	global mcpi_pid;
+	mcpi_process = subprocess.Popen([binaries[current_selection]]);
+	time.sleep(2);
+	mcpi_pid = mcpi_process.pid + 2;
+	start_mods();
 	return 0;
 
 def save_settings():
@@ -55,8 +81,9 @@ def on_select_mods(event):
 		delete_button["state"] = DISABLED;
 	return 0;
 
-def install_mod():
-	mod_file = askopenfilename(filetypes=[("Python scripts", "*.py")]);
+def install_mod(mod_file=None):
+	if mod_file is None:
+		mod_file = askopenfilename(filetypes=[("Minecraft Pi Mods", "*.mcpi *.py")]);
 	copy2(mod_file, "./mods/" + path.basename(mod_file));
 	update_mods();
 	delete_button["state"] = DISABLED;
@@ -78,13 +105,19 @@ def update_mods():
 	mods.delete(0, END);
 
 	while i < len(mod_files):
-		mods.insert(i, mod_files[i]);
+		mods.insert(i, mod_files[i].replace(".py", "").replace(".mcpi", ""));
 		i += 1;
 	return 0;
 
 def start_mods():
 	global mods_process;
-	mods_process = subprocess.Popen(["python3", "mcpim.py"]);
+	mods_env = environ.copy();
+	mcpi_file = open("/opt/minecraft-pi/minecraft-pi", "rb");
+	mcpi_file.seek(0xfa8ca);
+	mods_env["MCPIL_USERNAME"] = mcpi_file.read(7).decode("utf-8");
+	mcpi_file.close();
+	mods_env["MCPIL_PID"] = str(mcpi_pid);
+	mods_process = subprocess.Popen(["./mcpim.py"], env=mods_env);
 	return 0;
 
 def kill_mods():
@@ -93,6 +126,7 @@ def kill_mods():
 
 def change_skin():
 	skin_file = askopenfilename(filetypes=[("Portable Network Graphics", "*.png")]);
+	copy2("/opt/minecraft-pi/data/images/mob/char.png", "/opt/minecraft-pi/data/images/mob/char_original.png");
 	copy2(skin_file, "/opt/minecraft-pi/data/images/mob/char.png");
 	return 0;
 
@@ -101,22 +135,36 @@ def web_open(event):
 	return 0;
 
 def save_world():
-	old_worldname = old_worldname_entry.get();
-	new_worldname = new_worldname_entry.get();
-	world_file = open("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_worldname + "/level.dat", "rb+");
-	new_world = world_file.read().replace(bytes([len(old_worldname)]) + bytes([0]) + bytes(old_worldname.encode()), bytes([len(new_worldname)]) + bytes([0]) + bytes(new_worldname.encode()));
+	old_world_name = old_worldname_entry.get();
+	new_world_name = new_worldname_entry.get();
+	world_file = open("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name + "/level.dat", "rb+");
+	new_world = world_file.read().replace(bytes([len(old_world_name)]) + bytes([0]) + bytes(old_world_name.encode()), bytes([len(new_world_name)]) + bytes([0]) + bytes(new_world_name.encode()));
 	world_file.seek(0);
 	world_file.write(new_world);
 	world_file.seek(0x16);
 	world_file.write(bytes([game_mode.get()]));
 	world_file.close();
-	rename("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_worldname, "/root/.minecraft/games/com.mojang/minecraftWorlds/" + new_worldname);
+	rename("/root/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name, "/root/.minecraft/games/com.mojang/minecraftWorlds/" + new_world_name);
 	return 0;
 
 def set_default_worldname(event):
 	new_worldname_entry.delete(0, END);
 	new_worldname_entry.insert(0, old_worldname_entry.get());
 	return True;
+
+def add_server():
+	global proxy_process;
+	server_addr = server_addr_entry.get();
+	server_port = server_port_entry.get();
+	proxy_process = subprocess.Popen(["./mcpip.py", server_addr, server_port]);
+	return 0;
+
+def kill_proxy():
+	try:
+		kill(proxy_process.pid, signal.SIGTERM);
+	except NameError:
+		pass;
+	return 0;
 
 def play_tab(parent):
 	global description_text;
@@ -241,6 +289,37 @@ def worlds_tab(parent):
 	buttons_frame.pack(fill=BOTH, expand=True);
 	return tab;
 
+def servers_tab(parent):
+	global server_addr_entry;
+	global server_port_entry;
+	tab = Frame(parent);
+
+	title = Label(tab, text="Servers");
+	title.config(font=("", 24));
+	title.pack();
+
+	server_addr_frame = Frame(tab);
+	server_addr_text = Label(server_addr_frame, text="Server addres:");
+	server_addr_text.pack(side=LEFT, anchor=N, pady=16, padx=8);
+
+	server_addr_entry = Entry(server_addr_frame, width=32);
+	server_addr_entry.pack(side=RIGHT, anchor=N, pady=16, padx=8);
+	server_addr_frame.pack(fill=X);
+
+	server_port_frame = Frame(tab);
+	server_port_text = Label(server_port_frame, text="Server port:");
+	server_port_text.pack(side=LEFT, anchor=N, padx=8);
+
+	server_port_entry = Entry(server_port_frame, width=32);
+	server_port_entry.pack(side=RIGHT, anchor=N, padx=8);
+	server_port_frame.pack(fill=X);
+
+	buttons_frame = Frame(tab);
+	start_button = Button(buttons_frame, text="Add server", command=add_server);
+	start_button.pack(side=RIGHT, anchor=S);
+	buttons_frame.pack(fill=BOTH, expand=True);
+	return tab;
+
 def about_tab(parent):
 	tab = Frame(parent);
 
@@ -248,7 +327,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.1.1");
+	version = Label(tab, text="v0.2.0");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -264,25 +343,36 @@ def about_tab(parent):
 	return tab;
 
 def main(args):
+	if "arm" not in uname()[4] and "aarch" not in uname()[4]:
+		sys.stdout.write("Error: Minecraft Pi Launcher must run on a Raspberry Pi.\n");
+		return 1;
+
+	if geteuid() != 0:
+		sys.stdout.write("Error: You need to have root privileges to run this program.\n");
+		return 1;
+
 	global mods_process;
 	chdir(path.dirname(__file__));
 	window = Tk();
 	window.title("MCPI Laucher");
 	window.geometry("480x348");
 	window.resizable(False, False);
-	window.iconphoto(True, PhotoImage(file="install_files/icon.png"))
+	window.iconphoto(True, PhotoImage(file="./.install_files/icon.png"))
 
 	tabs = ttk.Notebook(window);
 	tabs.add(play_tab(tabs), text="Play");
 	tabs.add(settings_tab(tabs), text="Settings");
 	tabs.add(mods_tab(tabs), text="Mods");
 	tabs.add(worlds_tab(tabs), text="Worlds");
+	tabs.add(servers_tab(tabs), text="Servers");
 	tabs.add(about_tab(tabs), text="About");
 	tabs.pack(fill=BOTH, expand=True);
 
-	copy2("/opt/minecraft-pi/data/images/mob/char.png", "/opt/minecraft-pi/data/images/mob/char_original.png");
-	start_mods();
+	if len(args) > 1:
+		install_mod(args[1]);
+
 	atexit.register(kill_mods);
+	atexit.register(kill_proxy);
 
 	window.mainloop();
 	return 0;

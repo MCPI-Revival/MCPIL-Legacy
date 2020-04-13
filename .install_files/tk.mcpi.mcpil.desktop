@@ -1,9 +1,11 @@
 [Desktop Entry]
 Name=MCPIL
 Comment=Minecraft Pi Launcher
-Exec=$(EXECUTABLE_PATH)
-Icon=$(ICON_PATH)
+Exec=$(EXECUTABLE_PATH) %f
+Icon=mcpil
 Terminal=false
 Type=Application
 Categories=Application;Game;
+MimeType=application/x-mcpimod
 StartupNotify=true
+GenericName=Minecraft Pi Launcher
