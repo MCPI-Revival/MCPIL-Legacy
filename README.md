@@ -7,30 +7,42 @@ A simple launcher for Minecraft: Pi Edition.
 
 ## Getting started
 ### Prerequisites
-To use MCPIL you need to have `Python >= 3.7.x` pre-installed and root privileges.
+To use MCPIL you need to have Python 3.7 pre-installed.
 
 ### Installation
-To install MCPIL, download or clone the repository:
+To install MCPIL, download or clone the repository and run the `build.py` file in the root of the repo:
 ```shell
-git clone https://github.com/Alvarito050506/MCPIL.git
+git clone https://github.com/MCPI-Devs/MCPIL.git
+cd ./MCPIL/
+python3.7 ./build.py
 ```
-and then run the `install.py` file. It will create a desktop file that you can access in the "Games" category.
+It will generate a `install.pyc` file under the `build` directory, run it:
+```shell
+cd ./build/
+python3.7 ./install.pyc
+```
+It will "install" MCPI and MCPE, and configure the Launcher.
 
 ## Features
 + Switch between Minecraft Pi and PE
-+ Username change
-+ Skin change
-+ Mod load
++ Username changing
++ Skin changing
++ Mod loading
 + Mod API
 + Mod compilation
-+ World game mode and name change
++ World setting (game mode and name) changing
 + Join non-local servers
-+ Coming soon: Pi Realms
++ Coming soon: More stuff
 
 ## Usage
-Launch the MCPIL desktop file or run the `mcpil.py` file to see the magick! :wink:
+Launch the MCPIL desktop file or run the `mcpil.pyc` file in the `build` folder as following to see the magic! :wink:
+```shell
+python3.7 ./mcpil.pyc
+```
 
 ## API
+**Warning**: The API will be refactored in the next release.
+
 There is an MCPIL API that you can use by importing the `mcpil` module into your Python mod. It exposes the following functions:
 
 ### `def get_user_name()`
@@ -47,9 +59,9 @@ Returns the game mode of the current world as an interger:
 ## Mod compilation
 To compile (compress) a Python mod, run the `mcpim.py` file passing the filename of the mod as the first argument. For example:
 ```shell
-./mcpim.py example.py
+python3.7 ./mcpim.pyc example.py
 ```
-will produce a `example.mcpi` mod file.
+This will produce an `example.mcpi` mod file.
 
 ## Thanks
 To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch.

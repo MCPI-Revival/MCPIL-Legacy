@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
 #
-#  example.py
+#  setup.py
 #  
 #  Copyright 2020 Alvarito050506 <donfrutosgomez@gmail.com>
 #  
@@ -21,30 +21,27 @@
 #  
 #  
 
+from setuptools import setup, find_packages
 
-import sys
-import time
-from mcpi import *
-from mcpil import *
-
-mc = minecraft.Minecraft.create();
-
-def main(args):
-	mc.setting("world_immutable", True);
-	mc.camera.setFollow();
-	mc.saveCheckpoint();
-	mc.postToChat("Welcome to Minecraft Pi, " + get_user_name() + ".");
-	mc.postToChat("The name of this awesome world is \"" + get_world_name() + "\".");
-	if get_game_mode() == 0:
-		mc.postToChat("You are in Survival mode.");
-	else:
-		mc.postToChat("You are in Creative mode.");
-	time.sleep(5);
-	mc.setting("world_immutable", False);
-	mc.setting("nametags_visible", True);
-	mc.player.setting("autojump", True);
-	mc.camera.setNormal();
-	return 0;
-
-if __name__ == '__main__':
-	sys.exit(main(sys.argv));
+setup(
+	name="mcpil",
+	version="v0.1.1",
+	description="MCPI API extensions.",
+	author="Alvarito050506",
+	author_email="donfrutosgomez@gmail.com",
+	url="https://github.com/Alvarito050506/MCPIL",
+	project_urls={
+		"Bug Tracker": "https://github.com/Alvarito050506/MCPIL/issues",
+		"Documentation": "https://github.com/Alvarito050506/MCPIL#readme",
+		"Source Code": "https://github.com/Alvarito050506/MCPIL",
+	},
+	packages=["mcpil"],
+	install_requires=["psutil>=5.7.0"],
+	classifiers=[
+		"Development Status :: 3 - Alpha",
+		"Environment :: Console",
+		"Operating System :: POSIX :: Linux",
+		"Programming Language :: Python :: 3 :: Only",
+		"License :: OSI Approved :: GNU General Public License v2 (GPLv2)"
+	]
+);

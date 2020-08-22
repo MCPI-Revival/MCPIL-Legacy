@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
 #
-#  example.py
+#  __init__.py
 #  
 #  Copyright 2020 Alvarito050506 <donfrutosgomez@gmail.com>
 #  
@@ -21,30 +21,21 @@
 #  
 #  
 
-
 import sys
-import time
-from mcpi import *
-from mcpil import *
+import psutil
+from os import environ
 
-mc = minecraft.Minecraft.create();
+def get_user_name():
+	return environ.get("MCPIL_USERNAME");
 
-def main(args):
-	mc.setting("world_immutable", True);
-	mc.camera.setFollow();
-	mc.saveCheckpoint();
-	mc.postToChat("Welcome to Minecraft Pi, " + get_user_name() + ".");
-	mc.postToChat("The name of this awesome world is \"" + get_world_name() + "\".");
-	if get_game_mode() == 0:
-		mc.postToChat("You are in Survival mode.");
-	else:
-		mc.postToChat("You are in Creative mode.");
-	time.sleep(5);
-	mc.setting("world_immutable", False);
-	mc.setting("nametags_visible", True);
-	mc.player.setting("autojump", True);
-	mc.camera.setNormal();
-	return 0;
+def get_world_name():
+	mcpi_process = psutil.Process(int(environ.get("MCPIL_PID")));
+	return mcpi_process.open_files()[-1].path.split("/")[-2];
 
-if __name__ == '__main__':
-	sys.exit(main(sys.argv));
+def get_game_mode():
+	world_name = get_world_name();
+	world_file = open("/root/.minecraft/games/com.mojang/minecraftWorlds/" + world_name + "/level.dat", "rb");
+	world_file.seek(0x16);
+	game_mode = int.from_bytes(world_file.read(1), "little");
+	world_file.close();
+	return game_mode;

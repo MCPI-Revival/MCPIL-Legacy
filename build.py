@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 # -*- coding: utf-8 -*-
 #
-#  example.py
+#  build.py
 #  
 #  Copyright 2020 Alvarito050506 <donfrutosgomez@gmail.com>
 #  
@@ -21,29 +21,18 @@
 #  
 #  
 
-
 import sys
-import time
-from mcpi import *
-from mcpil import *
-
-mc = minecraft.Minecraft.create();
+import py_compile
+import glob
+from os import chdir
 
 def main(args):
-	mc.setting("world_immutable", True);
-	mc.camera.setFollow();
-	mc.saveCheckpoint();
-	mc.postToChat("Welcome to Minecraft Pi, " + get_user_name() + ".");
-	mc.postToChat("The name of this awesome world is \"" + get_world_name() + "\".");
-	if get_game_mode() == 0:
-		mc.postToChat("You are in Survival mode.");
-	else:
-		mc.postToChat("You are in Creative mode.");
-	time.sleep(5);
-	mc.setting("world_immutable", False);
-	mc.setting("nametags_visible", True);
-	mc.player.setting("autojump", True);
-	mc.camera.setNormal();
+	src = glob.glob("./src/*.py");
+	i = 0;
+	while i < len(src):
+		py_compile.compile(src[i], cfile="./build/" + src[i].replace("./src", "").replace(".py", ".pyc"), optimize=2);
+		i += 1;
+	
 	return 0;
 
 if __name__ == '__main__':
