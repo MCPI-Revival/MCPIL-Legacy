@@ -7,32 +7,32 @@ A simple launcher for Minecraft: Pi Edition.
 
 ## Getting started
 ### Prerequisites
-To use MCPIL you need to have Python 3.7 pre-installed.
+To use MCPIL you need to have `Python >= 3.7.x` pre-installed.
 
 ### Installation
 To install MCPIL, download or clone the repository and run the `build.py` file in the root of the repo:
 ```shell
-git clone https://github.com/MCPI-Devs/MCPIL.git
-cd ./MCPIL/
-python3.7 ./build.py
+git clone --recurse-submodules https://github.com/MCPI-Devs/MCPIL.git
+cd MCPIL
+python3 ./build.py
 ```
 It will generate a `install.pyc` file under the `build` directory, run it:
 ```shell
-cd ./build/
-python3.7 ./install.pyc
+cd build
+python3 ./install.pyc
 ```
 It will "install" MCPI and MCPE, and configure the Launcher.
 
 ## Features
-+ Switch between Minecraft Pi and PE
-+ Username changing
-+ Skin changing
-+ Mod loading
-+ Mod API
-+ Mod compilation
-+ World setting (game mode and name) changing
-+ Join non-local servers
-+ Coming soon: More stuff
+ + Switch between Minecraft Pi and PE
+ + Username changing
+ + Skin changing
+ + Mod loading
+ + Mod API
+ + Mod compilation
+ + World setting (game mode and name) changing
+ + Join non-local servers
+ + Coming soon: More stuff
 
 ## Usage
 Launch the MCPIL desktop file or run the `mcpil.pyc` file in the `build` folder as following to see the magic! :wink:
@@ -41,25 +41,14 @@ python3.7 ./mcpil.pyc
 ```
 
 ## API
-**Warning**: The API will be refactored in the next release.
+The API documentation was moved to the [ModPi repo](https://github.com/MCPI-Devs/modpi).
 
-There is an MCPIL API that you can use by importing the `mcpil` module into your Python mod. It exposes the following functions:
-
-### `def get_user_name()`
-Returns the user name of the player.
-
-### `def get_world_name()`
-Returns the name of the current world.
-
-### `def get_game_mode()`
-Returns the game mode of the current world as an interger:
- + 0 = Survival
- + 1 = Creative
+The old API still can be used, and its documentation is still avaiable [here](https://github.com/MCPI-Devs/MCPIL/tree/3470fb73b81510f5e819a34c04cca6f86457c2b2#api). However it is obsolete, it will be removed from future releases of the Launcher, and it is recommended to use the new ModPi API.
 
 ## Mod compilation
 To compile (compress) a Python mod, run the `mcpim.py` file passing the filename of the mod as the first argument. For example:
 ```shell
-python3.7 ./mcpim.pyc example.py
+python3 ./mcpim.pyc example.py
 ```
 This will produce an `example.mcpi` mod file.
 

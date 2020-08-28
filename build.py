@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  build.py
@@ -24,6 +24,7 @@
 import sys
 import py_compile
 import glob
+import subprocess
 from os import chdir
 
 def main(args):
@@ -32,7 +33,9 @@ def main(args):
 	while i < len(src):
 		py_compile.compile(src[i], cfile="./build/" + src[i].replace("./src", "").replace(".py", ".pyc"), optimize=2);
 		i += 1;
-	
+	py_compile.compile("./proxy/proxy.py", cfile="./build/mcpip.pyc", optimize=2);
+	null = open("/dev/null", "wb");
+	subprocess.call(["make", "-C", "modpi"], stdout=null);
 	return 0;
 
 if __name__ == '__main__':

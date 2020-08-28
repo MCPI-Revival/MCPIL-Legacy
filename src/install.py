@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  install.py
@@ -26,7 +26,7 @@ import sys
 from os import uname, getenv, path, makedirs, mkdir, getcwd, chdir
 import shutil
 
-def main():
+def main(args):
 	if "arm" not in uname()[4] and "aarch" not in uname()[4]:
 		sys.stdout.write("Error: Minecraft Pi Launcher must run on a Raspberry Pi.\n");
 		return 1;
@@ -34,26 +34,28 @@ def main():
 	sizes = ["16", "32", "48", "64", "128"];
 	chdir(path.dirname(path.realpath(__file__)));
 
-	if not path.exists(getenv("HOME") + "/.mcpil"):
-		subprocess.call(["pip3.7", "install", "--user", "-qq", "psutil"]);
-		subprocess.call(["python3.7", "../src/api/setup.py", "-q", "install"]);
-		if not path.exists(getenv("HOME") + "/.local/share/applications"):
-			makedirs(getenv("HOME") + "/.local/share/applications");
-		i = 0;
-		while i < len(sizes):
-			subprocess.call(["xdg-icon-resource", "install", "--novendor", "--size", sizes[i], "./res/application-x-mcpimod_" + sizes[i] + "px.png", "application-x-mcpimod"]);
-			subprocess.call(["xdg-icon-resource", "install", "--novendor", "--size", sizes[i], "./res/mcpil_" + sizes[i] + "px.png", "mcpil"]);
-			i += 1;
-		subprocess.call(["xdg-mime", "install", "--novendor", "./res/mcpimod.xml"]);
+	subprocess.call(["pip3", "-q", "install", "mcpi"]);
+	subprocess.call(["pip3", "-q", "install", "../modpi/"]);
+	subprocess.call(["pip3", "-q", "install", "../mcpi-central/"]);
+	shutil.copy2("../modpi/build/preload.so", "./minecraft/preload.so");
+	if not path.exists(getenv("HOME") + "/.local/share/applications"):
+		makedirs(getenv("HOME") + "/.local/share/applications");
+	i = 0;
+	while i < len(sizes):
+		subprocess.call(["xdg-icon-resource", "install", "--novendor", "--size", sizes[i], "./res/application-x-mcpimod_" + sizes[i] + "px.png", "application-x-mcpimod"]);
+		subprocess.call(["xdg-icon-resource", "install", "--novendor", "--size", sizes[i], "./res/mcpil_" + sizes[i] + "px.png", "mcpil"]);
+		i += 1;
+	subprocess.call(["xdg-mime", "install", "--novendor", "./res/mcpimod.xml"]);
+	if not path.exists(getenv("HOME") + "/.mcpil/"):
 		mkdir(getenv("HOME") + "/.mcpil");
-		shutil.copytree("./minecraft", getenv("HOME") + "/.mcpil/minecraft");
+		shutil.copytree("./minecraft/", getenv("HOME") + "/.mcpil/minecraft/");
 		mkdir(getenv("HOME") + "/.mcpil/mods");
-		desktop_template = open("./res/tk.mcpi.mcpil.desktop", "r");
-		desktop_file = open(getenv("HOME") + "/.local/share/applications/tk.mcpi.mcpil.desktop", "w");
-		desktop_file.write(desktop_template.read().replace("$(EXECUTABLE_PATH)", "python3.7 " + getcwd() + "/mcpil.pyc"));
-		desktop_template.close();
-		desktop_file.close();
+	desktop_template = open("./res/tk.mcpi.mcpil.desktop", "r");
+	desktop_file = open(getenv("HOME") + "/.local/share/applications/tk.mcpi.mcpil.desktop", "w");
+	desktop_file.write(desktop_template.read().replace("$(EXECUTABLE_PATH)", "python3 " + getcwd() + "/mcpil.pyc"));
+	desktop_template.close();
+	desktop_file.close();
 	return 0;
 
 if __name__ == '__main__':
-	sys.exit(main());
+	sys.exit(main(sys.argv));

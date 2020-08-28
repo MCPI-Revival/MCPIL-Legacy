@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  mcpil.py
@@ -79,10 +79,13 @@ def save_settings():
 	return 0;
 
 def on_select_mods(event):
-	if mods.get(int(event.widget.curselection()[0])) is not None:
-		delete_button["state"] = NORMAL;
-	else:
-		delete_button["state"] = DISABLED;
+	try:
+		if mods.get(int(event.widget.curselection()[0])) is not None:
+			delete_button["state"] = NORMAL;
+		else:
+			delete_button["state"] = DISABLED;
+	except IndexError:
+		pass;
 	return 0;
 
 def install_mod(mod_file=None):
@@ -119,7 +122,7 @@ def start_mods():
 	mods_env["MCPIL_USERNAME"] = mcpi_file.read(7).decode("utf-8");
 	mcpi_file.close();
 	mods_env["MCPIL_PID"] = str(mcpi_pid);
-	mods_process = subprocess.Popen(["python3.7", "./mcpim.pyc"], env=mods_env);
+	mods_process = subprocess.Popen(["python3", "./mcpim.pyc"], env=mods_env);
 	return 0;
 
 def kill_mods():
@@ -161,7 +164,7 @@ def add_server():
 	global proxy_process;
 	server_addr = server_addr_entry.get();
 	server_port = server_port_entry.get();
-	proxy_process = subprocess.Popen(["python3.7", "./mcpip.pyc", server_addr, server_port]);
+	proxy_process = subprocess.Popen(["python3", "./mcpip.pyc", server_addr, server_port]);
 	return 0;
 
 def kill_proxy():
@@ -332,14 +335,13 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.3.0");
+	version = Label(tab, text="v0.4.0");
 	version.config(font=("", 10));
 	version.pack();
 
 	author = Label(tab, text="by @Alvarito050506");
 	author.config(font=("", 10));
 	author.pack();
-	author.bind("<Button-1>", web_open);
 
 	url = Label(tab, text="https://github.com/MCPI-Devs/MCPIL", fg="blue", cursor="hand2");
 	url.config(font=("", 10));

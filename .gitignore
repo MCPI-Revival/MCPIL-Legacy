@@ -3,3 +3,7 @@
 
 # Builds
 *.pyc
+*.so
+
+# Python stuff
+__pycache__/

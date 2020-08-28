@@ -1,0 +1,12 @@
+[submodule "libmcpi"]
+	path = libmcpi
+	url = https://github.com/MCPI-Devs/libmcpi
+[submodule "mcpi-central"]
+	path = mcpi-central
+	url = https://github.com/MCPI-Devs/mcpi-central
+[submodule "modpi"]
+	path = modpi
+	url = https://github.com/MCPI-Devs/modpi
+[submodule "proxy"]
+	path = proxy
+	url = https://github.com/MCPI-Devs/proxy

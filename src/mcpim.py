@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  mcpim.py
@@ -72,7 +72,7 @@ def main(args):
 				mod_file = open(mod_name, "w");
 				mod_file.write(mod_code);
 				mod_file.close();
-				subprocess.Popen(["python3.7", mod_name], env=environ);
+				subprocess.Popen(["python3", mod_name], env=environ);
 				time.sleep(5);
 				remove(mod_name);
 				i += 1;

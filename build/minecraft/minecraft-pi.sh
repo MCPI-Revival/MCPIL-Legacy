@@ -10,4 +10,6 @@ else
 	export LD_LIBRARY_PATH=./lib/brcm
 fi
 
+export LD_PRELOAD="./preload.so"
+
 ./minecraft-pi
