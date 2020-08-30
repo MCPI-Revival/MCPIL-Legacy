@@ -1,0 +1,4 @@
+#!/bin/bash
+
+bspatch /opt/minecraft-pi/minecraft-pi /opt/minecraft-pi/minecraft-pe /opt/minecraft-pi/pi2pe.bsdiff
+rm -f /opt/minecraft-pi/pi2pe.bsdiff

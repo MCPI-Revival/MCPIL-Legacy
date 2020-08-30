@@ -29,8 +29,10 @@ import zlib
 import shutil
 import time
 import glob
-from os import kill, environ, remove, path, mkdir, getenv
+from os import kill, remove, path, mkdir, getenv
 from mcpi import minecraft
+
+home = getenv("HOME");
 
 def kill_mods():
 	i = 0;
@@ -48,7 +50,6 @@ def compile_mods(file_name):
 	mod_file.close();
 	return 0;
 
-
 def main(args):
 	if len(args) > 1:
 		compile_mods(args[1]);
@@ -63,16 +64,16 @@ def main(args):
 	while j is None:
 		try:
 			minecraft.Minecraft.create();
-			mod_files = glob.glob(getenv("HOME") + "/.mcpil/mods/*.mcpi");
+			mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
 			while i < len(mod_files):
 				mod_file = open(mod_files[i], "rb");
 				mod_code = zlib.decompress(mod_file.read()).decode("utf-8");
 				mod_file.close();
-				mod_name = getenv("HOME") + "/.mcpil/mods/." + path.basename(mod_files[i]).replace(".mcpi", ".py");
+				mod_name = f"""{home}/.mcpil/mods/.{path.basename(mod_files[i]).replace(".mcpi", ".py")}""";
 				mod_file = open(mod_name, "w");
 				mod_file.write(mod_code);
 				mod_file.close();
-				subprocess.Popen(["python3", mod_name], env=environ);
+				subprocess.Popen(["python3", mod_name]);
 				time.sleep(5);
 				remove(mod_name);
 				i += 1;
@@ -82,5 +83,5 @@ def main(args):
 			pass;
 	return 0;
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	sys.exit(main(sys.argv));

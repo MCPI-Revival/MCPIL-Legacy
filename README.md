@@ -10,18 +10,14 @@ A simple launcher for Minecraft: Pi Edition.
 To use MCPIL you need to have `Python >= 3.7.x` pre-installed.
 
 ### Installation
-To install MCPIL, download or clone the repository and run the `build.py` file in the root of the repo:
+Download and install MCPIL from the Packagecloud Debian repository:
 ```shell
-git clone --recurse-submodules https://github.com/MCPI-Devs/MCPIL.git
-cd MCPIL
-python3 ./build.py
+# If you didn't add the repository yet
+curl -s https://packagecloud.io/install/repositories/Alvarito050506/mcpi-devs/script.deb.sh | sudo bash
+
+# Now the actual installation
+sudo apt-get install mcpil
 ```
-It will generate a `install.pyc` file under the `build` directory, run it:
-```shell
-cd build
-python3 ./install.pyc
-```
-It will "install" MCPI and MCPE, and configure the Launcher.
 
 ## Features
  + Switch between Minecraft Pi and PE
@@ -35,20 +31,20 @@ It will "install" MCPI and MCPE, and configure the Launcher.
  + Coming soon: More stuff
 
 ## Usage
-Launch the MCPIL desktop file or run the `mcpil.pyc` file in the `build` folder as following to see the magic! :wink:
+Launch the MCPIL desktop file or run the `mcpil` command folder as following to see the magic! :wink:
 ```shell
-python3.7 ./mcpil.pyc
+mcpil # Yes, simple as this
 ```
 
 ## API
 The API documentation was moved to the [ModPi repo](https://github.com/MCPI-Devs/modpi).
 
-The old API still can be used, and its documentation is still avaiable [here](https://github.com/MCPI-Devs/MCPIL/tree/3470fb73b81510f5e819a34c04cca6f86457c2b2#api). However it is obsolete, it will be removed from future releases of the Launcher, and it is recommended to use the new ModPi API.
+The support for the old API was **dropped** in the **v0.5.0 release**! It is recommended to use the new ModPi API. However, the old API documentation is still avaiable [here](https://github.com/MCPI-Devs/MCPIL/tree/3470fb73b81510f5e819a34c04cca6f86457c2b2#api).
 
 ## Mod compilation
-To compile (compress) a Python mod, run the `mcpim.py` file passing the filename of the mod as the first argument. For example:
+To compile (compress) a Python mod, run the `mcpim` command passing the filename of the mod as the first argument. For example:
 ```shell
-python3 ./mcpim.pyc example.py
+mcpim ./example.py
 ```
 This will produce an `example.mcpi` mod file.
 

@@ -28,7 +28,8 @@ import signal
 import webbrowser
 import time
 import glob
-from os import walk, remove, path, chdir, kill, rename, environ, uname, geteuid, getenv
+import json
+from os import walk, remove, path, chdir, kill, rename, uname, geteuid, getenv
 from tkinter import *
 from tkinter import ttk
 from tkinter import simpledialog
@@ -36,7 +37,8 @@ from tkinter.filedialog import askopenfilename
 from shutil import copy2
 
 descriptions = ["Miecraft Pi Edition. v0.1.1. Default game mode: Creative.", "Minecraft Pocket Edition. v0.6.1. Default game mode: Survival."];
-binaries = [getenv("HOME") + "/.mcpil/minecraft/minecraft-pi.sh", getenv("HOME") + "/.mcpil/minecraft/minecraft-pe.sh"];
+binaries = ["/usr/bin/minecraft-pi.sh", "/usr/bin/minecraft-pe.sh"];
+home = getenv("HOME");
 
 def on_select_versions(event):
 	global current_selection;
@@ -59,23 +61,13 @@ def save_settings():
 	username = username_entry.get();
 	i = 0;
 
-	while len(username) < 7:
-		username = username + "\x00";
+	if len(username) < 7:
+		username = f"{username}\x00";
 
-	mcpi_file = open(getenv("HOME") + "/.mcpil/minecraft/minecraft-pi", "r+");
-	mcpi_file.seek(0xfa8ca);
-	while i < 7:
-		mcpi_file.write(username[i]);
-		i += 1;
-	i = 0;
-	mcpi_file.close();
-
-	mcpe_file = open(getenv("HOME") + "/.mcpil/minecraft/minecraft-pe", "r+");
-	mcpe_file.seek(0xfa8ca);
-	while i < 7:
-		mcpe_file.write(username[i]);
-		i += 1;
-	mcpe_file.close();
+	config_file = open(f"{home}/.mcpil/username.txt", "w");
+	config_file.seek(0);
+	config_file.write(username[:min(len(username), 7)]);
+	config_file.close();
 	return 0;
 
 def on_select_mods(event):
@@ -91,7 +83,7 @@ def on_select_mods(event):
 def install_mod(mod_file=None):
 	if mod_file is None:
 		mod_file = askopenfilename(filetypes=[("Minecraft Pi Mods", "*.mcpi")]);
-	copy2(mod_file, getenv("HOME") + "/.mcpil/mods/" + path.basename(mod_file));
+	copy2(mod_file, f"{home}/.mcpil/mods/{path.basename(mod_file)}");
 	update_mods();
 	delete_button["state"] = DISABLED;
 	return 0;
@@ -106,7 +98,7 @@ def update_mods():
 	mod_files = [];
 	i = 0;
 
-	mod_files = glob.glob(getenv("HOME") + "/.mcpil/mods/*.mcpi");
+	mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
 	mods.delete(0, END);
 
 	while i < len(mod_files):
@@ -116,13 +108,7 @@ def update_mods():
 
 def start_mods():
 	global mods_process;
-	mods_env = environ.copy();
-	mcpi_file = open(getenv("HOME") + "/.mcpil/minecraft/minecraft-pi", "rb");
-	mcpi_file.seek(0xfa8ca);
-	mods_env["MCPIL_USERNAME"] = mcpi_file.read(7).decode("utf-8");
-	mcpi_file.close();
-	mods_env["MCPIL_PID"] = str(mcpi_pid);
-	mods_process = subprocess.Popen(["python3", "./mcpim.pyc"], env=mods_env);
+	mods_process = subprocess.Popen(["mcpim"]);
 	return 0;
 
 def kill_mods():
@@ -132,12 +118,6 @@ def kill_mods():
 		pass;
 	return 0;
 
-def change_skin():
-	skin_file = askopenfilename(filetypes=[("Portable Network Graphics", "*.png")]);
-	copy2(getenv("HOME") + "/.mcpil/minecraft/data/images/mob/char.png", getenv("HOME") + "/.mcpil/minecraft/data/images/mob/char_original.png");
-	copy2(skin_file, getenv("HOME") + "/.mcpil/minecraft/data/images/mob/char.png");
-	return 0;
-
 def web_open(event):
 	webbrowser.open(event.widget.cget("text"));
 	return 0;
@@ -145,14 +125,14 @@ def web_open(event):
 def save_world():
 	old_world_name = old_worldname_entry.get();
 	new_world_name = new_worldname_entry.get();
-	world_file = open(getenv("HOME") + "/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name + "/level.dat", "rb+");
+	world_file = open(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}/level.dat", "rb+");
 	new_world = world_file.read().replace(bytes([len(old_world_name)]) + bytes([0]) + bytes(old_world_name.encode()), bytes([len(new_world_name)]) + bytes([0]) + bytes(new_world_name.encode()));
 	world_file.seek(0);
 	world_file.write(new_world);
 	world_file.seek(0x16);
 	world_file.write(bytes([game_mode.get()]));
 	world_file.close();
-	rename(getenv("HOME") + "/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name, getenv("HOME") + "/.minecraft/games/com.mojang/minecraftWorlds/" + new_world_name);
+	rename(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}", f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{new_world_name}");
 	return 0;
 
 def set_default_worldname(event):
@@ -164,7 +144,7 @@ def add_server():
 	global proxy_process;
 	server_addr = server_addr_entry.get();
 	server_port = server_port_entry.get();
-	proxy_process = subprocess.Popen(["python3", "./mcpip.pyc", server_addr, server_port]);
+	proxy_process = subprocess.Popen(["mcpip", server_addr, server_port]);
 	return 0;
 
 def kill_proxy():
@@ -221,8 +201,6 @@ def settings_tab(parent):
 	form_frame.pack(fill=X);
 
 	buttons_frame = Frame(tab);
-	skin_button = Button(buttons_frame, text="Change skin", command=change_skin);
-	skin_button.pack(side=LEFT, anchor=S);
 	save_button = Button(buttons_frame, text="Save", command=save_settings);
 	save_button.pack(side=RIGHT, anchor=S);
 	buttons_frame.pack(fill=BOTH, expand=True);
@@ -335,7 +313,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.4.0");
+	version = Label(tab, text="v0.5.0");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -359,12 +337,24 @@ def main(args):
 	if __debug__ == True:
 		print("Debug!");
 
-	chdir(path.dirname(args[0]));
+	if not path.isdir(f"{home}/.mcpil/"):
+		os.mkdir(f"{home}/.mcpil/");
+		os.mkdir(f"{home}/.mcpil/mods/");
+
+	if not path.isdir(f"{home}/.mcpil/mods/"):
+		os.mkdir(f"{home}/.mcpil/mods/");
+
+	if not path.exists(f"{home}/.mcpil/username.txt"):
+		config_file = open(f"{home}/.mcpil/username.txt", "w");
+		config_file.seek(0);
+		config_file.write("StevePi");
+		config_file.close();
+
 	window = Tk();
 	window.title("MCPI Laucher");
 	window.geometry("480x348");
 	window.resizable(False, False);
-	window.iconphoto(True, PhotoImage(file="./res/mcpil_48px.png"));
+	window.iconphoto(True, PhotoImage(file="/usr/share/icons/hicolor/48x48/apps/mcpil.png"));
 
 	tabs = ttk.Notebook(window);
 	tabs.add(play_tab(tabs), text="Play");
@@ -384,5 +374,5 @@ def main(args):
 	window.mainloop();
 	return 0;
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	sys.exit(main(sys.argv));

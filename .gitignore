@@ -7,3 +7,7 @@
 
 # Python stuff
 __pycache__/
+
+# Debian
+mcpil_*-*.deb
+deb/
