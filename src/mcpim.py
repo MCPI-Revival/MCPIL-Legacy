@@ -50,7 +50,7 @@ def compile_mods(file_name):
 	mod_file.close();
 	return 0;
 
-def main(args):
+def start_mods(args=[]):
 	if len(args) > 1:
 		compile_mods(args[1]);
 		return 0;
@@ -61,27 +61,31 @@ def main(args):
 	i = 0;
 	j = None;
 
-	while j is None:
-		try:
-			minecraft.Minecraft.create();
-			mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
-			while i < len(mod_files):
-				mod_file = open(mod_files[i], "rb");
-				mod_code = zlib.decompress(mod_file.read()).decode("utf-8");
-				mod_file.close();
-				mod_name = f"""{home}/.mcpil/mods/.{path.basename(mod_files[i]).replace(".mcpi", ".py")}""";
-				mod_file = open(mod_name, "w");
-				mod_file.write(mod_code);
-				mod_file.close();
-				subprocess.Popen(["python3", mod_name]);
-				time.sleep(5);
-				remove(mod_name);
-				i += 1;
-			atexit.register(kill_mods);
-			j = 1;
-		except ConnectionRefusedError:
-			pass;
+	try:
+		while j is None:
+			try:
+				minecraft.Minecraft.create();
+				mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
+				while i < len(mod_files):
+					mod_file = open(mod_files[i], "rb");
+					mod_code = zlib.decompress(mod_file.read()).decode("utf-8");
+					mod_file.close();
+					mod_name = f"""{home}/.mcpil/mods/.{path.basename(mod_files[i]).replace(".mcpi", ".py")}""";
+					mod_file = open(mod_name, "w");
+					mod_file.write(mod_code);
+					mod_file.close();
+					subprocess.Popen(["python3", mod_name]);
+					time.sleep(5);
+					remove(mod_name);
+					i += 1;
+				atexit.register(kill_mods);
+				j = 1;
+			except ConnectionRefusedError:
+				pass;
+	except KeyboardInterrupt:
+		kill_mods();
+		pass;
 	return 0;
 
 if __name__ == "__main__":
-	sys.exit(main(sys.argv));
+	sys.exit(start_mods(sys.argv));

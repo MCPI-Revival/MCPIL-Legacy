@@ -1,4 +1,6 @@
 #!/bin/bash
 
 bspatch /opt/minecraft-pi/minecraft-pi /opt/minecraft-pi/minecraft-pe /opt/minecraft-pi/pi2pe.bsdiff
+chmod a+x /opt/minecraft-pi/minecraft-pe
+chmod a+rw /opt/minecraft-pi/data/images
 rm -f /opt/minecraft-pi/pi2pe.bsdiff

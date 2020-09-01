@@ -29,31 +29,36 @@ import webbrowser
 import time
 import glob
 import json
-from os import walk, remove, path, chdir, kill, rename, uname, geteuid, getenv
+import threading
+from os import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import simpledialog
 from tkinter.filedialog import askopenfilename
 from shutil import copy2
+from mcpicentral import *
+from mcpip import *
+from mcpim import *
 
 descriptions = ["Miecraft Pi Edition. v0.1.1. Default game mode: Creative.", "Minecraft Pocket Edition. v0.6.1. Default game mode: Survival."];
 binaries = ["/usr/bin/minecraft-pi.sh", "/usr/bin/minecraft-pe.sh"];
 home = getenv("HOME");
+api_client = APIClient(None);
+proxy = Proxy();
+mod_names = [];
 
 def on_select_versions(event):
 	global current_selection;
 	try:
-		description_text["text"] = descriptions[int(event.widget.curselection()[0])];
 		current_selection = int(event.widget.curselection()[0]);
+		description_text["text"] = descriptions[current_selection];
 	except IndexError:
 		pass;
 	return 0;
 
 def launch():
-	global mcpi_pid;
 	mcpi_process = subprocess.Popen([binaries[current_selection]]);
 	time.sleep(2);
-	mcpi_pid = mcpi_process.pid + 2;
 	start_mods();
 	return 0;
 
@@ -95,27 +100,61 @@ def delete_mod():
 	return 0;
 
 def update_mods():
+	global mod_names;
 	mod_files = [];
 	i = 0;
+	basename = path.basename;
 
 	mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
 	mods.delete(0, END);
 
-	while i < len(mod_files):
-		mods.insert(i, path.basename(mod_files[i].replace(".mcpi", "")));
+	for mod in mod_files:
+		mod_path = basename(mod.replace(".mcpi", ""));
+		mods.insert(i, mod_path);
+		mod_names.append(mod_path);
 		i += 1;
 	return 0;
 
-def start_mods():
-	global mods_process;
-	mods_process = subprocess.Popen(["mcpim"]);
+def update_servers():
+	i = 0;
+
+	for server in api_client.servers:
+		servers.insert(i, server);
+		i += 1;
 	return 0;
 
-def kill_mods():
+def on_select_servers(event):
 	try:
+		if servers.get(int(event.widget.curselection()[0])) is not None:
+			enable_server_button["state"] = NORMAL;
+		else:
+			enable_serverbutton["state"] = DISABLED;
+	except IndexError:
+		pass;
+	return 0;
+
+def enable_central_server():
+	server_name = api_client.servers[int(servers.curselection()[0])];
+	server = api_client.get_server(server_name);
+	proxy.stop();
+	proxy.set_option("src_addr", server["ip"]);
+	proxy.set_option("src_port", int(server["port"]));
+	proxy_thread = threading.Thread(target=proxy.run);
+	proxy_thread.start();
+
+#def start_mods():
+#	global mods_process;
+#	mods_process = subprocess.Popen(["mcpim"]).pid;
+#	return 0;
+
+def bye():
+	proxy.stop();
+	window.destroy();
+	"""try:
 		kill(mods_process.pid, signal.SIGTERM);
 	except NameError:
-		pass;
+		pass;"""
+	kill(getpid(), signal.SIGTERM);
 	return 0;
 
 def web_open(event):
@@ -126,7 +165,7 @@ def save_world():
 	old_world_name = old_worldname_entry.get();
 	new_world_name = new_worldname_entry.get();
 	world_file = open(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}/level.dat", "rb+");
-	new_world = world_file.read().replace(bytes([len(old_world_name)]) + bytes([0]) + bytes(old_world_name.encode()), bytes([len(new_world_name)]) + bytes([0]) + bytes(new_world_name.encode()));
+	new_world = world_file.read().replace(bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())), bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())));
 	world_file.seek(0);
 	world_file.write(new_world);
 	world_file.seek(0x16);
@@ -141,17 +180,35 @@ def set_default_worldname(event):
 	return True;
 
 def add_server():
-	global proxy_process;
 	server_addr = server_addr_entry.get();
 	server_port = server_port_entry.get();
-	proxy_process = subprocess.Popen(["mcpip", server_addr, server_port]);
+	proxy.stop();
+	proxy.set_option("src_addr", server_addr);
+	proxy.set_option("src_port", int(server_port));
+	proxy_thread = threading.Thread(target=proxy.run);
+	proxy_thread.start();
 	return 0;
 
-def kill_proxy():
+def init():
+	global launch_thread;
 	try:
-		kill(proxy_process.pid, signal.SIGTERM);
-	except NameError:
+		mkdir(f"{home}/.mcpil/");
+	except FileExistsError:
 		pass;
+
+	try:
+		mkdir(f"{home}/.mcpil/mods");
+	except FileExistsError:
+		pass;
+
+	launch_thread = threading.Thread(target=launch);
+
+	try:
+		api_client.servers = api_client.get_servers()["servers"];
+	except:
+		api_client.servers = [];
+		pass;
+	update_servers();
 	return 0;
 
 def play_tab(parent):
@@ -179,7 +236,7 @@ def play_tab(parent):
 	versions_frame.pack(fill=BOTH, expand=True);
 
 	launch_frame = Frame(tab);
-	launch_button = Button(launch_frame, text="Launch!", command=launch);
+	launch_button = Button(launch_frame, text="Launch!", command=launch_thread.start);
 	launch_button.pack(side=RIGHT, anchor=S);
 	launch_frame.pack(fill=BOTH, expand=True);
 	return tab;
@@ -306,6 +363,31 @@ def servers_tab(parent):
 	buttons_frame.pack(fill=BOTH, expand=True);
 	return tab;
 
+def central_tab(parent):
+	global servers;
+	global enable_server_button;
+	tab = Frame(parent);
+
+	title = Label(tab, text="MCPI Central");
+	title.config(font=("", 24));
+	title.pack();
+
+	public = Label(tab, text="Public servers");
+	public.config(font=("", 10));
+	public.pack();
+
+	servers_frame = Frame(tab);
+	servers = Listbox(servers_frame, selectmode=SINGLE, width=22);
+	servers.bind('<<ListboxSelect>>', on_select_servers);
+	servers.pack(pady=16);
+	servers_frame.pack();
+
+	buttons_frame = Frame(tab);
+	enable_server_button = Button(buttons_frame, text="Enable server", command=enable_central_server, state=DISABLED);
+	enable_server_button.pack(side=RIGHT, anchor=S);
+	buttons_frame.pack(fill=BOTH, expand=True);
+	return tab;
+
 def about_tab(parent):
 	tab = Frame(parent);
 
@@ -313,7 +395,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.5.0");
+	version = Label(tab, text="v0.6.0");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -329,26 +411,11 @@ def about_tab(parent):
 
 def main(args):
 	if "arm" not in uname()[4] and "aarch" not in uname()[4]:
-		sys.stdout.write("Error: Minecraft Pi Launcher must run on a Raspberry Pi.\n");
+		sys.stderr.write("Error: Minecraft Pi Launcher must run on a Raspberry Pi.\n");
 		return -1;
 
 	global mods_process;
-
-	if __debug__ == True:
-		print("Debug!");
-
-	if not path.isdir(f"{home}/.mcpil/"):
-		os.mkdir(f"{home}/.mcpil/");
-		os.mkdir(f"{home}/.mcpil/mods/");
-
-	if not path.isdir(f"{home}/.mcpil/mods/"):
-		os.mkdir(f"{home}/.mcpil/mods/");
-
-	if not path.exists(f"{home}/.mcpil/username.txt"):
-		config_file = open(f"{home}/.mcpil/username.txt", "w");
-		config_file.seek(0);
-		config_file.write("StevePi");
-		config_file.close();
+	global window;
 
 	window = Tk();
 	window.title("MCPI Laucher");
@@ -356,22 +423,28 @@ def main(args):
 	window.resizable(False, False);
 	window.iconphoto(True, PhotoImage(file="/usr/share/icons/hicolor/48x48/apps/mcpil.png"));
 
+	init_thread = threading.Thread(target=init);
+	init_thread.start();
+
 	tabs = ttk.Notebook(window);
 	tabs.add(play_tab(tabs), text="Play");
 	tabs.add(settings_tab(tabs), text="Settings");
 	tabs.add(mods_tab(tabs), text="Mods");
 	tabs.add(worlds_tab(tabs), text="Worlds");
 	tabs.add(servers_tab(tabs), text="Servers");
+	tabs.add(central_tab(tabs), text="Central");
 	tabs.add(about_tab(tabs), text="About");
 	tabs.pack(fill=BOTH, expand=True);
 
 	if len(args) > 1:
 		install_mod(args[1]);
 
-	atexit.register(kill_mods);
-	atexit.register(kill_proxy);
+	window.wm_protocol("WM_DELETE_WINDOW", bye);
 
-	window.mainloop();
+	try:
+		window.mainloop();
+	except KeyboardInterrupt:
+		bye();
 	return 0;
 
 if __name__ == "__main__":
