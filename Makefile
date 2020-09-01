@@ -22,10 +22,13 @@
 pack:
 	mkdir -p ./deb/
 	cp -a ./res/. ./deb/
+	mkdir -p ./deb/usr/lib/python3/dist-packages/
 	cp ./src/mcpil.py ./deb/usr/bin/mcpil
-	cp ./src/mcpim.py ./deb/usr/bin/mcpim
+	cp ./src/mcpim.py ./deb/usr/lib/python3/dist-packages/
 	chmod a+x ./deb/usr/bin/mcpil
 	chmod a+x ./deb/usr/bin/mcpim
+	rm -f ./deb/usr/bin/mcpim
+	ln -s /usr/lib/python3/dist-packages/mcpim.py ./deb/usr/bin/mcpim
 	@echo "Package: mcpil" > ./deb/DEBIAN/control
 	@echo "Version: 0.6.0" >> ./deb/DEBIAN/control
 	@echo "Priority: optional" >> ./deb/DEBIAN/control

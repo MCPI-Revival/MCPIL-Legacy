@@ -33,6 +33,7 @@ import threading
 from os import *
 from tkinter import *
 from tkinter import ttk
+#from tkinter.ttk import *
 from tkinter import simpledialog
 from tkinter.filedialog import askopenfilename
 from shutil import copy2
