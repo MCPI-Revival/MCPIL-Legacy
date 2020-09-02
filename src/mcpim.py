@@ -65,12 +65,12 @@ def start_mods(args=[]):
 		while j is None:
 			try:
 				minecraft.Minecraft.create();
-				mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
+				mod_files = glob.glob(home} + "/.mcpil/mods/*.mcpi");
 				while i < len(mod_files):
 					mod_file = open(mod_files[i], "rb");
 					mod_code = zlib.decompress(mod_file.read()).decode("utf-8");
 					mod_file.close();
-					mod_name = f"""{home}/.mcpil/mods/.{path.basename(mod_files[i]).replace(".mcpi", ".py")}""";
+					mod_name = home + "/.mcpil/mods/." + path.basename(mod_files[i]).replace(".mcpi", ".py");
 					mod_file = open(mod_name, "w");
 					mod_file.write(mod_code);
 					mod_file.close();

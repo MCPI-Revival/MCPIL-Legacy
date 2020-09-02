@@ -72,9 +72,9 @@ def save_settings():
 	i = 0;
 
 	if len(username) < 7:
-		username = f"{username}\x00";
+		username = username + "\x00";
 
-	config_file = open(f"{home}/.mcpil/username.txt", "w");
+	config_file = open(home + "/.mcpil/username.txt", "w");
 	config_file.seek(0);
 	config_file.write(username[:min(len(username), 7)]);
 	config_file.close();
@@ -93,7 +93,7 @@ def on_select_mods(event):
 def install_mod(mod_file=None):
 	if mod_file is None:
 		mod_file = askopenfilename(filetypes=[("Minecraft Pi Mods", "*.mcpi")]);
-	copy2(mod_file, f"{home}/.mcpil/mods/{path.basename(mod_file)}");
+	copy2(mod_file, home + "/.mcpil/mods/" + path.basename(mod_file));
 	update_mods();
 	delete_button["state"] = DISABLED;
 	return 0;
@@ -110,7 +110,7 @@ def update_mods():
 	i = 0;
 	basename = path.basename;
 
-	mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
+	mod_files = glob.glob(home + "/.mcpil/mods/*.mcpi");
 	mods.delete(0, END);
 
 	for mod in mod_files:
@@ -160,14 +160,14 @@ def web_open(event):
 def save_world():
 	old_world_name = old_worldname_entry.get();
 	new_world_name = new_worldname_entry.get();
-	world_file = open(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}/level.dat", "rb+");
+	world_file = open(home + "/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name + "/level.dat", "rb+");
 	new_world = world_file.read().replace(bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())), bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())));
 	world_file.seek(0);
 	world_file.write(new_world);
 	world_file.seek(0x16);
 	world_file.write(bytes([game_mode.get()]));
 	world_file.close();
-	rename(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}", f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{new_world_name}");
+	rename(home + "/.minecraft/games/com.mojang/minecraftWorlds/" + old_world_name, home + "/.minecraft/games/com.mojang/minecraftWorlds/" + new_world_name);
 	return 0;
 
 def set_default_worldname(event):
@@ -187,12 +187,12 @@ def add_server():
 
 def init():
 	try:
-		mkdir(f"{home}/.mcpil/");
+		mkdir(home + "/.mcpil/");
 	except FileExistsError:
 		pass;
 
 	try:
-		mkdir(f"{home}/.mcpil/mods");
+		mkdir(home + "/.mcpil/mods");
 	except FileExistsError:
 		pass;
 
