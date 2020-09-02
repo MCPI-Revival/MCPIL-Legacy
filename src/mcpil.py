@@ -99,7 +99,7 @@ def install_mod(mod_file=None):
 	return 0;
 
 def delete_mod():
-	remove(mods.get(int(mods.curselection()[0])));
+	remove(f"{home}/.mcpil/mods/{mods.get(int(mods.curselection()[0]))}.mcpi");
 	update_mods();
 	delete_button["state"] = DISABLED;
 	return 0;
