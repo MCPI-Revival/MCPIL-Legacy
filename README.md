@@ -5,9 +5,11 @@ Minecraft Pi Launcher
 
 A simple launcher for Minecraft: Pi Edition.
 
+**Warning:** This branch is only for compatibility with ancient Python 3 versions.
+
 ## Getting started
 ### Prerequisites
-To use MCPIL you need to have `Python >= 3.7.x` pre-installed.
+To use this branch you need to have `Python >= 3.5.x` pre-installed.
 
 ### Installation
 Download and install MCPIL from the Packagecloud Debian repository:
