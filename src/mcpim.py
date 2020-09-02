@@ -83,6 +83,7 @@ def start_mods(args=[]):
 			except ConnectionRefusedError:
 				pass;
 	except KeyboardInterrupt:
+		j = 1;
 		kill_mods();
 		pass;
 	return 0;

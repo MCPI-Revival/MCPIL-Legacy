@@ -33,7 +33,6 @@ import threading
 from os import *
 from tkinter import *
 from tkinter import ttk
-#from tkinter.ttk import *
 from tkinter import simpledialog
 from tkinter.filedialog import askopenfilename
 from shutil import copy2
@@ -61,6 +60,11 @@ def launch():
 	mcpi_process = subprocess.Popen([binaries[current_selection]]);
 	time.sleep(2);
 	start_mods();
+	return 0;
+
+def pre_launch():
+	launch_thread = threading.Thread(target=launch);
+	launch_thread.start();
 	return 0;
 
 def save_settings():
@@ -143,18 +147,9 @@ def enable_central_server():
 	proxy_thread = threading.Thread(target=proxy.run);
 	proxy_thread.start();
 
-#def start_mods():
-#	global mods_process;
-#	mods_process = subprocess.Popen(["mcpim"]).pid;
-#	return 0;
-
 def bye():
 	proxy.stop();
 	window.destroy();
-	"""try:
-		kill(mods_process.pid, signal.SIGTERM);
-	except NameError:
-		pass;"""
 	kill(getpid(), signal.SIGTERM);
 	return 0;
 
@@ -191,7 +186,6 @@ def add_server():
 	return 0;
 
 def init():
-	global launch_thread;
 	try:
 		mkdir(f"{home}/.mcpil/");
 	except FileExistsError:
@@ -201,8 +195,6 @@ def init():
 		mkdir(f"{home}/.mcpil/mods");
 	except FileExistsError:
 		pass;
-
-	launch_thread = threading.Thread(target=launch);
 
 	try:
 		api_client.servers = api_client.get_servers()["servers"];
@@ -237,7 +229,7 @@ def play_tab(parent):
 	versions_frame.pack(fill=BOTH, expand=True);
 
 	launch_frame = Frame(tab);
-	launch_button = Button(launch_frame, text="Launch!", command=launch_thread.start);
+	launch_button = Button(launch_frame, text="Launch!", command=pre_launch);
 	launch_button.pack(side=RIGHT, anchor=S);
 	launch_frame.pack(fill=BOTH, expand=True);
 	return tab;

@@ -10,6 +10,4 @@ else
         export LD_LIBRARY_PATH=lib/brcm
 fi
 
-export LD_PRELOAD=/usr/lib/libmodpi.so
-
 ./minecraft-pe
