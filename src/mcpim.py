@@ -65,7 +65,7 @@ def start_mods(args=[]):
 		while j is None:
 			try:
 				minecraft.Minecraft.create();
-				mod_files = glob.glob(home} + "/.mcpil/mods/*.mcpi");
+				mod_files = glob.glob(home + "/.mcpil/mods/*.mcpi");
 				while i < len(mod_files):
 					mod_file = open(mod_files[i], "rb");
 					mod_code = zlib.decompress(mod_file.read()).decode("utf-8");
