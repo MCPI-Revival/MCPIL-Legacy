@@ -30,7 +30,7 @@ import time
 import glob
 import json
 import threading
-from os import *
+from os import getenv, kill, path, rename, mkdir, uname, getpid
 from tkinter import *
 from tkinter import ttk
 from tkinter import simpledialog
@@ -196,12 +196,12 @@ def init():
 	except FileExistsError:
 		pass;
 
+	api_client.servers = [];
 	try:
 		api_client.servers = api_client.get_servers()["servers"];
+		update_servers();
 	except:
-		api_client.servers = [];
 		pass;
-	update_servers();
 	return 0;
 
 def play_tab(parent):
@@ -375,6 +375,11 @@ def central_tab(parent):
 	servers.pack(pady=16);
 	servers_frame.pack();
 
+	try:
+		update_servers();
+	except:
+		pass;
+
 	buttons_frame = Frame(tab);
 	enable_server_button = Button(buttons_frame, text="Enable server", command=enable_central_server, state=DISABLED);
 	enable_server_button.pack(side=RIGHT, anchor=S);
@@ -388,7 +393,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.6.0");
+	version = Label(tab, text="v0.6.2");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -403,7 +408,8 @@ def about_tab(parent):
 	return tab;
 
 def main(args):
-	if "arm" not in uname()[4] and "aarch" not in uname()[4]:
+	arch = uname()[4];
+	if "arm" not in arch and "aarch" not in arch:
 		sys.stderr.write("Error: Minecraft Pi Launcher must run on a Raspberry Pi.\n");
 		return -1;
 
