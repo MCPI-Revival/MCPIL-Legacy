@@ -1,5 +1,5 @@
 # MCPIL
-Minecraft Pi Launcher
+A Minecraft Pi Launcher
 
 ![screenshot](https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png)
 
@@ -7,7 +7,7 @@ A simple launcher for Minecraft: Pi Edition.
 
 ## Getting started
 ### Prerequisites
-To use MCPIL you need to have `Python >= 3.7.x` pre-installed.
+To use MCPIL you must have `Python >= 3.7.x` installed on your device prior to using MCPIL.
 
 ### Installation
 Download and install MCPIL from the Packagecloud Debian repository:
@@ -20,15 +20,15 @@ sudo apt-get install mcpil
 ```
 
 ## Features
- + Switch between Minecraft Pi and PE
+ + Switch between Minecraft Pi and Minecraft Pocket Edition
  + Username changing
  + Skin changing
  + Mod loading
  + Mod API
  + Mod compilation
- + World setting (game mode and name) changing
+ + World settings (gamemode and name) changing
  + Join non-local servers
- + Coming soon: More stuff
+ + Coming soon: More stuff 
 
 ## Usage
 Launch the MCPIL desktop file or run the `mcpil` command folder as following to see the magic! :wink:
