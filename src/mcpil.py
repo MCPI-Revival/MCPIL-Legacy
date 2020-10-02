@@ -27,39 +27,87 @@ import atexit
 import signal
 import webbrowser
 import time
-import glob
 import json
 import threading
-from os import getenv, kill, path, rename, mkdir, uname, getpid
+from os import environ, kill, rename, mkdir, uname, getpid
 from tkinter import *
 from tkinter import ttk
 from tkinter import simpledialog
 from tkinter.filedialog import askopenfilename
 from shutil import copy2
-from mcpicentral import *
+from glob import glob
+from mcpicentral import APIClient
 from mcpip import *
 from mcpim import *
 
-descriptions = ["Miecraft Pi Edition. v0.1.1. Default game mode: Creative.", "Minecraft Pocket Edition. v0.6.1. Default game mode: Survival."];
-binaries = ["/usr/bin/minecraft-pi.sh", "/usr/bin/minecraft-pe.sh"];
-home = getenv("HOME");
+descriptions = [
+	"Classic Miecraft Pi Edition.\nNo mods.",
+	"Modded Miecraft Pi Edition.\nModPi + libmcpi-docker without Survival or Touch GUI.",
+	"Minecraft Pocket Edition.\nlibmcpi-docker.",
+	"Custom Profile.\nModify its settings in the Profile tab.",
+];
+preset_features = [
+	str(),
+	"Fix Bow & Arrow|Fix Attacking|Mob Spawning|Show Clouds|ModPi",
+	"Touch GUI|Survival Mode|Fix Bow & Arrow|Fix Attacking|Mob Spawning|Show Clouds"
+];
+features = ["Touch GUI", "Survival Mode", "Fix Bow & Arrow", "Fix Attacking", "Mob Spawning", "Show Clouds", "ModPi"];
+enabled_features = str();
+home = environ["HOME"];
 api_client = APIClient(None);
 proxy = Proxy();
-mod_names = [];
+mod_names = list();
+dll_files = list();
+
+class Checkbox(ttk.Checkbutton):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.state = BooleanVar(self);
+		self.configure(variable=self.state);
+
+	def checked(self):
+		return self.state.get();
+
+	def check(self, val):
+		return self.state.set(val);
+
+def basename(path):
+	return path.split("/")[-1];
 
 def on_select_versions(event):
 	global current_selection;
 	try:
-		current_selection = int(event.widget.curselection()[0]);
+		current_selection = event.widget.curselection()[0];
 		description_text["text"] = descriptions[current_selection];
 	except IndexError:
 		pass;
 	return 0;
 
 def launch():
-	mcpi_process = subprocess.Popen([binaries[current_selection]]);
-	time.sleep(2);
-	start_mods();
+	global dummy;
+
+	try:
+		environ.update({
+			"MCPI_FEATURES": preset_features[current_selection]
+		});
+	except IndexError:
+		environ.update({
+			"MCPI_FEATURES": enabled_features[:-1]
+		});
+	bk = environ.get("LD_PRELOAD") or "";
+	if "ModPi" in enabled_features:
+		environ.update({
+			"LD_PRELOAD": f"/usr/lib/libmodpi.so:{bk}"
+		});
+	mcpi_process = subprocess.Popen(["/opt/minecraft-pi/minecraft-pi"]);
+	environ.update({
+		"LD_PRELOAD": bk
+	});
+	try:
+		dummy;
+	except:
+		dummy = 0;
+		start_mods();
 	return 0;
 
 def pre_launch():
@@ -82,7 +130,7 @@ def save_settings():
 
 def on_select_mods(event):
 	try:
-		if mods.get(int(event.widget.curselection()[0])) is not None:
+		if mods.get(event.widget.curselection()[0]) is not None:
 			delete_button["state"] = NORMAL;
 		else:
 			delete_button["state"] = DISABLED;
@@ -99,18 +147,17 @@ def install_mod(mod_file=None):
 	return 0;
 
 def delete_mod():
-	remove(f"{home}/.mcpil/mods/{mods.get(int(mods.curselection()[0]))}.mcpi");
+	remove(f"{home}/.mcpil/mods/{mods.get(mods.curselection()[0])}.mcpi");
 	update_mods();
 	delete_button["state"] = DISABLED;
 	return 0;
 
 def update_mods():
 	global mod_names;
-	mod_files = [];
-	i = 0;
-	basename = path.basename;
 
-	mod_files = glob.glob(f"{home}/.mcpil/mods/*.mcpi");
+	i = 0;
+	mod_files = list();
+	mod_files = glob(f"{home}/.mcpil/mods/*.mcpi");
 	mods.delete(0, END);
 
 	for mod in mod_files:
@@ -120,9 +167,20 @@ def update_mods():
 		i += 1;
 	return 0;
 
+def update_dlls():
+	global dll_files;
+
+	dll_files = list();
+	dll_files = glob("/usr/lib/mcpi-docker/mods/lib*.so");
+	bk = environ.get("LD_LIBRARY_PATH") or str();
+	environ.update({
+		"LD_LIBRARY_PATH": f"/usr/lib/mcpi-docker:/usr/arm-linux-gnueabihf/lib:{bk}",
+		"LD_PRELOAD": ":".join(dll_files)
+	});
+	return 0;
+
 def update_servers():
 	i = 0;
-
 	for server in api_client.servers:
 		servers.insert(i, server);
 		i += 1;
@@ -130,7 +188,7 @@ def update_servers():
 
 def on_select_servers(event):
 	try:
-		if servers.get(int(event.widget.curselection()[0])) is not None:
+		if servers.get(event.widget.curselection()[0]) is not None:
 			enable_server_button["state"] = NORMAL;
 		else:
 			enable_serverbutton["state"] = DISABLED;
@@ -139,18 +197,13 @@ def on_select_servers(event):
 	return 0;
 
 def enable_central_server():
-	server_name = api_client.servers[int(servers.curselection()[0])];
+	server_name = api_client.servers[servers.curselection()[0]];
 	server = api_client.get_server(server_name);
 	proxy.stop();
 	proxy.set_option("src_addr", server["ip"]);
 	proxy.set_option("src_port", int(server["port"]));
 	proxy_thread = threading.Thread(target=proxy.run);
 	proxy_thread.start();
-
-def bye():
-	proxy.stop();
-	window.destroy();
-	kill(getpid(), signal.SIGTERM);
 	return 0;
 
 def web_open(event):
@@ -185,6 +238,50 @@ def add_server():
 	proxy_thread.start();
 	return 0;
 
+def save_profile():
+	global enabled_features;
+
+	i = 0;
+	profile_file = open(f"{home}/.mcpil/profile.txt", "w");
+	enabled_features = str();
+	for setting in profile_settings:
+		checked = int(setting.checked());
+		if checked:
+			enabled_features += f"{features[i]}|";
+		profile_file.write(str(checked));
+		i += 1;
+	profile_file.close();
+	return 0;
+
+def restore_profile():
+	global enabled_features;
+
+	i = 0;
+	try:
+		profile_file = open(f"{home}/.mcpil/profile.txt", "r");
+	except FileNotFoundError:
+		return -1;
+	profile = profile_file.read(7);
+	enabled_features = str();
+	for setting in profile:
+		checked = bool(int(setting));
+		profile_settings[i].check(checked);
+		if checked:
+			enabled_features += f"{features[i]}|";
+		i += 1;
+	profile_file.close();
+	return 0;
+
+def add_checkboxes(parent):
+	global profile_settings;
+
+	profile_settings = list();
+	for feature in features:
+		tmp = Checkbox(parent, text=feature);
+		tmp.pack(fill=BOTH, pady=2, padx=160);
+		profile_settings.append(tmp);
+	return 0;
+
 def init():
 	try:
 		mkdir(f"{home}/.mcpil/");
@@ -196,12 +293,19 @@ def init():
 	except FileExistsError:
 		pass;
 
-	api_client.servers = [];
+	api_client.servers = list();
+	update_dlls();
 	try:
 		api_client.servers = api_client.get_servers()["servers"];
 		update_servers();
 	except:
 		pass;
+	return 0;
+
+def bye():
+	proxy.stop();
+	window.destroy();
+	kill(getpid(), signal.SIGTERM);
 	return 0;
 
 def play_tab(parent):
@@ -218,8 +322,10 @@ def play_tab(parent):
 
 	versions_frame = Frame(tab);
 	versions = Listbox(versions_frame, selectmode=SINGLE, width=22);
-	versions.insert(0, " Minecraft Pi Edition ");
-	versions.insert(1, " Minecraft Pocket Edition ");
+	versions.insert(0, " Classic MCPI ");
+	versions.insert(1, " Modded MCPI ");
+	versions.insert(2, " Classic MCPE ");
+	versions.insert(3, " Custom Profile ");
 	versions.bind('<<ListboxSelect>>', on_select_versions);
 	versions.pack(side=LEFT);
 
@@ -386,6 +492,26 @@ def central_tab(parent):
 	buttons_frame.pack(fill=BOTH, expand=True);
 	return tab;
 
+def profile_tab(parent):
+	global profile_settings;
+	tab = Frame(parent);
+
+	title = Label(tab, text="Custom Profile");
+	title.config(font=("", 24));
+	title.pack();
+
+	checkbox_frame = Frame(tab);
+	add_checkboxes(checkbox_frame);
+	checkbox_frame.pack(fill=BOTH, pady=8, padx=16);
+
+	restore_profile();
+
+	buttons_frame = Frame(tab);
+	start_button = Button(buttons_frame, text="Save", command=save_profile);
+	start_button.pack(side=RIGHT, anchor=S);
+	buttons_frame.pack(fill=BOTH, expand=True);
+	return tab;
+
 def about_tab(parent):
 	tab = Frame(parent);
 
@@ -432,6 +558,7 @@ def main(args):
 	tabs.add(worlds_tab(tabs), text="Worlds");
 	tabs.add(servers_tab(tabs), text="Servers");
 	tabs.add(central_tab(tabs), text="Central");
+	tabs.add(profile_tab(tabs), text="Profile");
 	tabs.add(about_tab(tabs), text="About");
 	tabs.pack(fill=BOTH, expand=True);
 
