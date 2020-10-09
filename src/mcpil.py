@@ -29,7 +29,7 @@ import webbrowser
 import time
 import json
 import threading
-from os import environ, kill, rename, mkdir, uname, getpid
+from os import environ, kill, rename, mkdir, uname, getpid, chdir
 from tkinter import *
 from tkinter import ttk
 from tkinter import simpledialog
@@ -42,16 +42,28 @@ from mcpim import *
 
 descriptions = [
 	"Classic Miecraft Pi Edition.\nNo mods.",
-	"Modded Miecraft Pi Edition.\nModPi + libmcpi-docker without Survival or Touch GUI.",
-	"Minecraft Pocket Edition.\nlibmcpi-docker.",
+	"Modded Miecraft Pi Edition.\nModPi + MCPI-Docker mods without Survival or Touch GUI.",
+	"Minecraft Pocket Edition.\nMCPI-Docker mods.",
 	"Custom Profile.\nModify its settings in the Profile tab.",
 ];
 preset_features = [
 	str(),
-	"Fix Bow & Arrow|Fix Attacking|Mob Spawning|Show Clouds|ModPi",
-	"Touch GUI|Survival Mode|Fix Bow & Arrow|Fix Attacking|Mob Spawning|Show Clouds"
+	"Fix Bow & Arrow|Fix Attacking|Mob Spawning|Fancy Graphics|Fix Sign Placement|ModPi",
+	"Touch GUI|Survival Mode|Fix Bow & Arrow|Fix Attacking|Mob Spawning|Fancy Graphics|Disable Autojump By Default|Fix Sign Placement|Show Block Outlines"
 ];
-features = ["Touch GUI", "Survival Mode", "Fix Bow & Arrow", "Fix Attacking", "Mob Spawning", "Show Clouds", "ModPi"];
+
+features = [
+	"Touch GUI",
+	"Survival Mode",
+	"Fix Bow & Arrow",
+	"Fix Attacking",
+	"Mob Spawning",
+	"Fancy Graphics",
+	"Disable Autojump By Default",
+	"Fix Sign Placement",
+	"Show Block Outlines",
+	"ModPi"
+];
 enabled_features = str();
 home = environ["HOME"];
 api_client = APIClient(None);
@@ -61,7 +73,7 @@ dll_files = list();
 
 class Checkbox(ttk.Checkbutton):
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs);
 		self.state = BooleanVar(self);
 		self.configure(variable=self.state);
 
@@ -70,6 +82,15 @@ class Checkbox(ttk.Checkbutton):
 
 	def check(self, val):
 		return self.state.set(val);
+
+class HyperLink(Label):
+	def __init__(self, parent, url, text=None, fg=None, cursor=None, *args, **kwargs):
+		self.url = url;
+		super().__init__(parent, text=(text or url), fg=(fg or "blue"), cursor=(cursor or "hand2"), *args, **kwargs);
+		self.bind("<Button-1>", self.web_open);
+
+	def web_open(self, event):
+		return webbrowser.open(self.url);
 
 def basename(path):
 	return path.split("/")[-1];
@@ -99,6 +120,7 @@ def launch():
 		environ.update({
 			"LD_PRELOAD": f"/usr/lib/libmodpi.so:{bk}"
 		});
+	chdir("/opt/minecraft-pi");
 	mcpi_process = subprocess.Popen(["/opt/minecraft-pi/minecraft-pi"]);
 	environ.update({
 		"LD_PRELOAD": bk
@@ -171,10 +193,10 @@ def update_dlls():
 	global dll_files;
 
 	dll_files = list();
-	dll_files = glob("/usr/lib/mcpi-docker/mods/lib*.so");
+	dll_files = glob("/usr/lib/libmcpi-docker/lib*.so");
 	bk = environ.get("LD_LIBRARY_PATH") or str();
 	environ.update({
-		"LD_LIBRARY_PATH": f"/usr/lib/mcpi-docker:/usr/arm-linux-gnueabihf/lib:{bk}",
+		"LD_LIBRARY_PATH": f"/opt/minecraft-pi/minecraft-pi/lib/brcm:/usr/lib/libmcpi-docker:/usr/arm-linux-gnueabihf/lib:{bk}",
 		"LD_PRELOAD": ":".join(dll_files)
 	});
 	return 0;
@@ -204,10 +226,6 @@ def enable_central_server():
 	proxy.set_option("src_port", int(server["port"]));
 	proxy_thread = threading.Thread(target=proxy.run);
 	proxy_thread.start();
-	return 0;
-
-def web_open(event):
-	webbrowser.open(event.widget.cget("text"));
 	return 0;
 
 def save_world():
@@ -275,11 +293,15 @@ def restore_profile():
 def add_checkboxes(parent):
 	global profile_settings;
 
+	i = 0;
 	profile_settings = list();
+	checkbox_frame = Frame(parent);
 	for feature in features:
-		tmp = Checkbox(parent, text=feature);
-		tmp.pack(fill=BOTH, pady=2, padx=160);
+		tmp = Checkbox(checkbox_frame, text=feature);
+		tmp.pack(fill=BOTH, anchor=N, padx=8);
 		profile_settings.append(tmp);
+		i += 1;
+	checkbox_frame.pack(fill=X);
 	return 0;
 
 def init():
@@ -500,10 +522,7 @@ def profile_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	checkbox_frame = Frame(tab);
-	add_checkboxes(checkbox_frame);
-	checkbox_frame.pack(fill=BOTH, pady=8, padx=16);
-
+	add_checkboxes(tab);
 	restore_profile();
 
 	buttons_frame = Frame(tab);
@@ -519,18 +538,17 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.6.2");
+	version = Label(tab, text="v0.7.1");
 	version.config(font=("", 10));
 	version.pack();
 
-	author = Label(tab, text="by @Alvarito050506");
+	author = HyperLink(tab, "https://github.com/Alvarito050506", text="by @Alvarito050506", fg="black");
 	author.config(font=("", 10));
 	author.pack();
 
-	url = Label(tab, text="https://github.com/MCPI-Devs/MCPIL", fg="blue", cursor="hand2");
+	url = HyperLink(tab, "https://github.com/MCPI-Devs/MCPIL");
 	url.config(font=("", 10));
 	url.pack();
-	author.bind("<Button-1>", web_open);
 	return tab;
 
 def main(args):
