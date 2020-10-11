@@ -1,6 +1,8 @@
 # MCPIL
 A Minecraft Pi Launcher
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4335/badge)](https://bestpractices.coreinfrastructure.org/projects/4335)
+
 ![screenshot](https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png)
 
 A simple launcher for Minecraft: Pi Edition.
