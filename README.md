@@ -51,9 +51,9 @@ mcpim ./example.py
 This will produce an `example.mcpi` mod file.
 
 ## Troubleshooting
-If you get this error: module not found: _tkinter or something of the sort, you can use homebrew and use a custom tap made by @gamer4life1.
+If you get the `module not found: _tkinter` error, or something of the sort, you can use Homebrew to install a custom tap made by @gamer4life1.
 ```shell
-# First, install brew (if you don't have it already (make sure to install in /home/linuxbrew/.linuxbrew
+# First, install brew (If you don't have it already, also make sure to install in /home/linuxbrew/.linuxbrew)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 # Then, apply the custom tap
 brew tap gamer4life1/mcpi-tap
