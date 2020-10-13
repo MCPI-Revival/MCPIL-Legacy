@@ -50,6 +50,25 @@ mcpim ./example.py
 ```
 This will produce an `example.mcpi` mod file.
 
+## Troubleshooting
+If you get the `module not found: _tkinter` error, or something of the sort, you can use Homebrew to install a custom tap made by @gamer4life1.
+```shell
+# First, install brew (If you don't have it already, also make sure to install in /home/linuxbrew/.linuxbrew)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+# Then, apply the custom tap
+brew tap gamer4life1/mcpi-tap
+# Install gcc (a needed dependency)
+brew install gcc
+# Follow caveats for gcc (something like example)
+export LDFLAGS="-L/home/linuxbrew/.linuxbrew/opt/isl@0.18/lib"
+export CPPFLAGS="-I/home/linuxbrew/.linuxbrew/opt/isl@0.18/include"
+# Install the custom formula of python (Ignore errors if they say that the system cannot find the bottle, it will compile from source)
+brew install custompython
+# Finally, add it to your PATH so it is first in your PATH
+export PATH="/usr/local/opt/custompython/bin:$PATH"
+# Add above to bashrc to load automatically
+```
+
 ## Thanks
 To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch.
 
