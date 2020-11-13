@@ -48,8 +48,8 @@ descriptions = [
 ];
 preset_features = [
 	str(),
-	"Fix Bow & Arrow|Fix Attacking|Mob Spawning|Fancy Graphics|Fix Sign Placement|ModPi",
-	"Touch GUI|Survival Mode|Fix Bow & Arrow|Fix Attacking|Mob Spawning|Fancy Graphics|Disable Autojump By Default|Fix Sign Placement|Show Block Outlines"
+	"Fix Bow & Arrow|Fix Attacking|Mob Spawning|Fancy Graphics|Fix Sign Placement|Expand Creative Inventory|ModPi",
+	"Touch GUI|Survival Mode|Fix Bow & Arrow|Fix Attacking|Mob Spawning|Disable Autojump By Default|Fix Sign Placement|Fancy Graphics"
 ];
 
 features = [
@@ -60,8 +60,10 @@ features = [
 	"Mob Spawning",
 	"Fancy Graphics",
 	"Disable Autojump By Default",
-	"Fix Sign Placement",
 	"Show Block Outlines",
+	"Fix Sign Placement",
+	"Expand Creative Inventory",
+	"Peaceful Mode",
 	"ModPi"
 ];
 enabled_features = str();
@@ -196,7 +198,7 @@ def update_dlls():
 	dll_files = glob("/usr/lib/libmcpi-docker/lib*.so");
 	bk = environ.get("LD_LIBRARY_PATH") or str();
 	environ.update({
-		"LD_LIBRARY_PATH": f"/opt/minecraft-pi/minecraft-pi/lib/brcm:/usr/lib/libmcpi-docker:/usr/arm-linux-gnueabihf/lib:{bk}",
+		"LD_LIBRARY_PATH": f"/opt/minecraft-pi/minecraft-pi/lib/brcm:/usr/lib/libmcpi-docker:/usr/lib/arm-linux-gnueabihf:{bk}",
 		"LD_PRELOAD": ":".join(dll_files)
 	});
 	return 0;
@@ -538,7 +540,7 @@ def about_tab(parent):
 	title.config(font=("", 24));
 	title.pack();
 
-	version = Label(tab, text="v0.7.1");
+	version = Label(tab, text="v0.7.2");
 	version.config(font=("", 10));
 	version.pack();
 
@@ -562,7 +564,7 @@ def main(args):
 
 	window = Tk();
 	window.title("MCPI Laucher");
-	window.geometry("480x348");
+	window.geometry("512x400");
 	window.resizable(False, False);
 	window.iconphoto(True, PhotoImage(file="/usr/share/icons/hicolor/48x48/apps/mcpil.png"));
 
@@ -593,3 +595,4 @@ def main(args):
 
 if __name__ == "__main__":
 	sys.exit(main(sys.argv));
+
