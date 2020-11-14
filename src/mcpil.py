@@ -234,7 +234,10 @@ def save_world():
 	old_world_name = old_worldname_entry.get();
 	new_world_name = new_worldname_entry.get();
 	world_file = open(f"{home}/.minecraft/games/com.mojang/minecraftWorlds/{old_world_name}/level.dat", "rb+");
-	new_world = world_file.read().replace(bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())), bytes([len(old_world_name), 0x00]).join(bytes(old_world_name.encode())));
+	new_world = world_file.read();
+	old_bytes = bytes([len(old_world_name), 0x00]).join([old_world_name.encode()]);
+	new_bytes = bytes([len(old_world_name), 0x00]).join([old_world_name.encode()]);
+	new_world = new_world.replace(old_bytes, new_bytes);
 	world_file.seek(0);
 	world_file.write(new_world);
 	world_file.seek(0x16);

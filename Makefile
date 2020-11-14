@@ -32,16 +32,16 @@ pack:
 	sudo chmod a+x ./deb/usr/bin/mcpil
 	sudo chmod a+x ./deb/usr/bin/mcpim
 	@echo "Package: mcpil" > ./deb/DEBIAN/control
-	@echo "Version: 0.7.2" >> ./deb/DEBIAN/control
+	@echo "Version: 0.7.3" >> ./deb/DEBIAN/control
 	@echo "Priority: optional" >> ./deb/DEBIAN/control
 	@echo "Architecture: armhf" >> ./deb/DEBIAN/control
-	@echo "Depends: libmcpi, mcpi-proxy, mcpi-central, libmodpi, libmcpi-docker, python3, libfreeimage3, libglfw3, minecraft-pi, python3-tk" >> ./deb/DEBIAN/control
+	@echo "Depends: libmcpi, mcpi-proxy, mcpi-central, libmodpi, libmcpi-docker, python3, libfreeimage3, libglfw3, minecraft-pi, python3-tk, libgles2-mesa" >> ./deb/DEBIAN/control
 	@echo "Maintainer: Alvarito050506 <donfrutosgomez@gmail.com>" >> ./deb/DEBIAN/control
 	@echo "Homepage: https://mcpi.tk" >> ./deb/DEBIAN/control
 	@echo "Vcs-Browser: https://github.com/MCPI-Devs/MCPIL" >> ./deb/DEBIAN/control
 	@echo "Vcs-Git: https://github.com/MCPI-Devs/MCPIL.git" >> ./deb/DEBIAN/control
 	@echo "Description: Simple launcher for Minecraft: Pi Edition.\n" >> ./deb/DEBIAN/control
-	dpkg-deb -b ./deb/ ./mcpil_0.7.2-1.deb
+	dpkg-deb -b ./deb/ ./mcpil_0.7.3-1.deb
 
 clean:
 	rm -rf ./deb/
