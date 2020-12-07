@@ -1,11 +1,18 @@
 # MCPIL
-A Minecraft Pi Launcher
+A **Broken** Minecraft Pi Launcher
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4335/badge)](https://bestpractices.coreinfrastructure.org/projects/4335)
 
 ![screenshot](https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png)
 
 A simple launcher for Minecraft: Pi Edition.
+
+### :warning: Warning
+This project is currently in an hiatus, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher.
+
+If you want stability, please consider using MCPI-Docker directly, or an old version of this Launcher ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice).
+
+This does **not** mean that the project will not be maintained anymore, so feel free to send reports, code, or other contributions.
 
 ## Getting started
 ### Prerequisites
@@ -70,7 +77,9 @@ export PATH="/usr/local/opt/custompython/bin:$PATH"
 ```
 
 ## Thanks
-To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch.
+To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch, and to [@TheBrokenRail](https://thebrokenrail.com) for MCPI-Docker. These two projects were/are highly used & abused by MCPIL :wink:.
+
+To everyone who has or had interest on the project, including MCPI Revival members.
 
 ## Licensing
 All the code of this project is licensed under the [GNU General Public License version 2.0](https://github.com/Alvarito050506/MCPIL/blob/master/LICENSE) (GPL-2.0).
