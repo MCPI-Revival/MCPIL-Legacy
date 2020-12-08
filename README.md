@@ -1,3 +1,11 @@
+### :warning: Warning
+This project is currently in an hiatus, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL/issues) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher.
+
+If you want stability, please consider using MCPI-Docker directly, or an old version of this Launcher ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice).
+
+This does **not** mean that the project will not be maintained anymore, so feel free to send reports, code, or other contributions.
+
+
 # MCPIL
 A **Broken** Minecraft Pi Launcher
 
@@ -7,12 +15,6 @@ A **Broken** Minecraft Pi Launcher
 
 A simple launcher for Minecraft: Pi Edition.
 
-### :warning: Warning
-This project is currently in an hiatus, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher.
-
-If you want stability, please consider using MCPI-Docker directly, or an old version of this Launcher ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice).
-
-This does **not** mean that the project will not be maintained anymore, so feel free to send reports, code, or other contributions.
 
 ## Getting started
 ### Prerequisites
