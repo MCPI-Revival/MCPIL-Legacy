@@ -1,20 +1,32 @@
+<h1 align="center">MCPIL</h1>
+<p align="center">
+	A simple launcher for Minecraft: Pi Edition.
+</p>
+<p align="center">
+	<a href="https://github.com/MCPI-Devs/MCPIL/blob/master/LICENSE">
+		<img src="https://img.shields.io/github/license/MCPI-Devs/MCPIL?label=License" alt="GPL-2.0"></img>
+	</a>
+	<a href="https://bestpractices.coreinfrastructure.org/projects/4335">
+		<img src="https://bestpractices.coreinfrastructure.org/projects/4335/badge" alt=CII Best Practices"></img>
+	</a>																								   
+	<a href="https://python.org">
+		<img src="https://img.shields.io/badge/Python-%E2%89%A53.7.x-blue" alt="Required Python version"></img>
+	</a>
+	<a href="https://github.com/MCPI-Devs/MCPIL/actions?query=workflow%3ACodeQL">
+		<img src="https://github.com/MCPI-Devs/MCPIL/workflows/CodeQL/badge.svg" alt="CodeQL results"></img>
+	</a>
+</p>
+<p align="center">
+	<img src="https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png" alt="screenshot"></img>
+</p>
+
 ### :warning: Warning
-This project is currently in an hiatus, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL/issues) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher.
+
+This branch of the project is currently in an hiatus, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL/issues) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher. A new branch is being developed from the ground up, so stay tunned!
 
 If you want stability, please consider using MCPI-Docker directly, or an old version of this Launcher ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice).
 
 This does **not** mean that the project will not be maintained anymore, so feel free to send reports, code, or other contributions.
-
-
-# MCPIL
-A **Broken** Minecraft Pi Launcher
-
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4335/badge)](https://bestpractices.coreinfrastructure.org/projects/4335)
-
-![screenshot](https://raw.githubusercontent.com/Alvarito050506/MCPIL/master/screenshot.png)
-
-A simple launcher for Minecraft: Pi Edition.
-
 
 ## Getting started
 ### Prerequisites
@@ -77,6 +89,8 @@ brew install custompython
 export PATH="/usr/local/opt/custompython/bin:$PATH"
 # Add above to bashrc to load automatically
 ```
+
+See also [issues](https://github.com/MCPI-Devs/MCPIL/issues) and [discussions](https://github.com/MCPI-Devs/MCPIL/discussions) for future information regarding bugs and errors.
 
 ## Thanks
 To [@Phirel](https://www.minecraftforum.net/members/Phirel) for his Pi2PE (a.k.a. "survival") patch, and to [@TheBrokenRail](https://thebrokenrail.com) for MCPI-Docker. These two projects were/are highly used & abused by MCPIL :wink:.
