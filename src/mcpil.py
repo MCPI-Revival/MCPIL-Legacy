@@ -41,7 +41,7 @@ from mcpip import *
 from mcpim import *
 
 descriptions = [
-	"Classic Miecraft Pi Edition.\nNo mods.",
+	"Classic Miecraft Pi Edition.\nNo changes.",
 	"Modded Miecraft Pi Edition.\nModPi + MCPI-Docker mods without Survival or Touch GUI.",
 	"Minecraft Pocket Edition.\nMCPI-Docker mods.",
 	"Custom Profile.\nModify its settings in the Profile tab.",
