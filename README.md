@@ -22,24 +22,22 @@
 
 ### :warning: Warning
 
-This branch of the project is currently being rewritten, until some design issues are fixed. Please refer to [issues](https://github.com/MCPI-Devs/MCPIL/issues) for most common bugs. All of them are produced by the lack of a good internal design, and practically broke the Launcher. A new branch is being developed from the ground up, so stay tunned!
+This project is broken and very unstable. A lot of bugs are produced by the lack of a good internal design, and breaks the Launcher. See [MCPIL-R](https://github.com/MCPI-Revival/MCPIL) for a version made from the ground up to be way for stable.
 
-If you want stability, please consider using MCPI-Docker directly, or an old version of this Launcher ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice).
+If you still want to run this for some reason, an old version of this Launcher like ([v0.6.2](https://github.com/MCPI-Devs/MCPIL/releases/tag/v0.6.2) would be a good choice.
 
-This does **not** mean that the project will not be maintained anymore, so feel free to send reports, code, or other contributions.
+This means the project will **not** be maintained anymore, so PRs or issues won't be fixed/accepted. tl;dr: DO NOT USE THIS!!! USE MCPIL-R!!!
 
 ## Getting started
 ### Prerequisites
 To use MCPIL you must have `Python >= 3.7.x` installed on your device prior to using MCPIL.
 
 ### Installation
-Download and install MCPIL from the Packagecloud Debian repository:
+Download and install MCPIL from the releases section:
 ```shell
-# If you didn't add the repository yet
-curl -s https://packagecloud.io/install/repositories/Alvarito050506/mcpi-devs/script.deb.sh | sudo bash
-
-# Now the actual installation
-sudo apt-get install mcpil
+wget https://github.com/MCPI-Revival/MCPIL-Legacy/releases/download/v0.7.3/mcpil_0.7.3-1.deb
+sudo apt install ./mcpil_0.7.3-1.deb
+sudo rm mcpil_0.7.3-1.deb
 ```
 
 ## Features
